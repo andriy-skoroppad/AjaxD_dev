@@ -49,17 +49,39 @@
 
     /**
      *
-     * @param params {key : value}
+     * @param params {header:{}, params: {}}
      */
 
     AjaxD.addParams = function(url, params){
         var urlNew = url;
+        var urlVariable = urlNew.match(/\/?::[^\/]+/g) || [];
+        console.log(urlVariable);
+
+        urlVariable.forEach(function(el){
+            var paramsEl = params[el.replace(/\/?::/, "")];
+
+            console.log("paramsEl", el);
+            if(paramsEl){
+                if(~el.indexOf("/")){
+                    paramsEl = "/" + paramsEl;
+                }
+                urlNew = urlNew.replace(el, paramsEl );
+            } else {
+                urlNew = urlNew.replace(el, "" );
+            }
+
+        });
+
         if(!~urlNew.indexOf("?")){
             urlNew += "?";
         }
+
         for (var key in params){
-            urlNew +=  "&" + key + "=" + encodeURIComponent(params[key].toString());
+            if(!~urlVariable.indexOf("/::" + key) &&  !~urlVariable.indexOf("::" + key)){
+                urlNew +=  "&" + key + "=" + encodeURIComponent(params[key].toString());
+            }
         }
+
         return urlNew.replace("?&", "?").replace("&&", "&");
 
     };
@@ -94,6 +116,13 @@
         this.reqest.onprogress = this._progress.bind(this);
     }
 
+    AjaxReqest.prototype.addHeader = function(obj){
+        if(obj){
+            this.props.header = obj;
+        }
+      return this;
+    };
+
 
 
     AjaxReqest.prototype.send = function(objectForSend, afterSendFn){
@@ -103,6 +132,16 @@
 
         this.reqest.open(this.type, AjaxD.addParams(this.baseApi, this.props.params), true);
         console.log('OPENED');
+
+        //add header
+        if(this.props.header){
+            for(var key in this.props.header){
+                this.reqest.setRequestHeader( key , this.props.header[key]);
+            }
+        }
+
+
+
 
         if(objectForSend){
             if(typeof(objectForSend) == "string"){
