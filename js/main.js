@@ -35,13 +35,23 @@ function loadFunction(){
                 console.log("data Send");
             });
 
-        AjaxD("put", "json/my_wor.json", {title: "nemo"})
-            .send({date: text})
+        console.log("Second");
+        AjaxD("get", "::folder/::file", {folder: "json", file: "my_work.json",darel: 25, rt: "rty-seruyt", text: text})
+            .addHeader({dartet : "fasdertasd jhsadgja shd123"})
+            .send({ss : "sadas", textSend: text}, function(){
+                console.log("send");
+            })
             .success(function(data){
-                console.log("ok");
-            })
-            .fail(function(data){
-                console.log("fail");
-            })
+                console.log("data Send");
+            });
+
+        //AjaxD("put", "json/my_wor.json", {title: "nemo"})
+        //    .send({date: text})
+        //    .success(function(data){
+        //        console.log("ok");
+        //    })
+        //    .fail(function(data){
+        //        console.log("fail");
+        //    })
     }
 }

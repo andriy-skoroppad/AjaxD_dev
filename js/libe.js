@@ -7,6 +7,8 @@
         return new AjaxReqest(type, baseApi, params);
     };
 
+    //AjaxD._requestArchive = [];
+
     AjaxD.parseStringForParams = function (stringWithUrl){
 
         var params = {},
@@ -86,9 +88,9 @@
 
     };
 
-    AjaxD.interceptor = function(changeParamsBefor, changeParamsAfter){
-        if(changeParamsBefor){
-            AjaxD.interceptor.before = changeParamsBefor;
+    AjaxD.interceptor = function(changeParamsBefore, changeParamsAfter){
+        if(changeParamsBefore){
+            AjaxD.interceptor.before = changeParamsBefore;
             if(changeParamsAfter){
                 AjaxD.interceptor.after = changeParamsAfter;
             }
@@ -112,8 +114,12 @@
         this._onload = function(){};
         this._notLoad = function(){};
         this._progress = function(){};
-        this.reqest.onload = this._load.bind(this);
-        this.reqest.onprogress = this._progress.bind(this);
+        this.reqest.addEventListener("load", this._load.bind(this) );
+        this.reqest.addEventListener("progress", this._progress.bind(this) );
+
+
+        //this.reqest.onload = this._load.bind(this);
+        //this.reqest.onprogress = this._progress.bind(this);
     }
 
     AjaxReqest.prototype.addHeader = function(obj){
@@ -124,11 +130,9 @@
     };
 
 
-
     AjaxReqest.prototype.send = function(objectForSend, afterSendFn){
 
         console.log(AjaxD.interceptor.before.call(this, this.baseApi, this.props));
-
 
         this.reqest.open(this.type, AjaxD.addParams(this.baseApi, this.props.params), true);
         console.log('OPENED');
@@ -159,7 +163,32 @@
 
         return this;
     };
+
+  /*  AjaxReqest.prototype._save = function(reqest){
+        var url = AjaxD.addParams(this.baseApi, this.props.params);
+        var baseUrl = url.replace(/\?.+$/, "");
+
+        AjaxD._requestArchive.push({
+            url: url,
+            mainUrl: baseUrl,
+            props: this.props,
+            data: reqest.response,
+            reqest: reqest
+        })
+    };*/
+
+   /* AjaxReqest.prototype._loadFromArchive = function(){
+        var url = AjaxD.addParams(this.baseApi, this.props.params);
+        var reqestData = null;
+        AjaxD._requestArchive.forEach(function(el){
+            if(el.url === url){
+                reqestData = el.reqest;
+            }
+        });
+        return reqestData;
+    };*/
     AjaxReqest.prototype._load = function(ev){
+        console.log("this", this);
 
         try{
             this.reqest.response = AjaxD.interceptor.after.call(this, this.reqest.response );
@@ -173,6 +202,7 @@
         } else {
             this._notLoad.call(this.reqest, this.reqest.response, ev);
         }
+
 
     };
 
